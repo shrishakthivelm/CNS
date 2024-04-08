@@ -1,0 +1,127 @@
+FRAG
+import math 
+
+def calc(packet_size, MTU_e, header_size):
+    packet_size -= header_size
+    MTU_e -= header_size
+    MTU_e = math.floor((MTU_e/8))*8
+    if(MTU_e > packet_size):
+        dont_fragment = 1
+    no_frag = math.ceil(packet_size/MTU_e)
+    print("No. of fragments", no_frag)
+
+    fragments = [0]*no_frag
+    frag_offset = [0]*no_frag
+    frag_m = [0]*no_frag
+
+    for i in range(0,no_frag):
+        if(i < no_frag-1):
+            fragments[i] = MTU_e + header_size
+            frag_m[i] = 1
+        else:
+            fragments[i] = packet_size - (no_frag-1)*MTU_e + header_size
+            frag_m[i] = 0
+
+    temp = 0
+
+    for i in range(1, no_frag):
+        temp = temp + fragments[i-1] - header_size
+        frag_offset[i] = temp/8 
+
+    return fragments,frag_offset,frag_m
+
+packet_size = int(input("enter the packet size(datagram size): "))
+MTU_e = int(input("Enter MTU: "))
+header_size = int(input("enter the header size"))
+fragments1, frag_offset1, frag_m1 = calc(packet_size, MTU_e, header_size)
+print("fragments:", fragments1)
+print("fragments Offset:", frag_offset1)
+print("fragments MF bits:", frag_m1)
+
+cat = fragments1[:]
+n = int(input("Enter the number of routers: "))
+for _ in range(n):
+    print()
+    emtu = int(input("Enter MTU: "))
+    temp = len(cat)
+    for i in range(temp):
+        fragments2, frag_offset2, frag_m2 = calc(cat[i], emtu, header_size)
+        cat += fragments2
+        print()
+        print("tot_size", fragments2)
+        print("frag offset",frag_offset2)
+        print("more bits", frag_m2)
+    for i in range(temp):  
+        cat.pop(0)
+print("final fragments:", cat)
+BELL
+def printArr(dist, V):
+    print("Vertex Distance from Source")
+    for i in range(V):
+        print("{0}\t\t{1}".format(i, dist[i]))
+
+def BellmanFord(graph, V, src):
+    dist = [float("Inf")] * V
+    dist[src] = 0
+
+    for _ in range(V - 1):
+        for u, v, w in graph:
+            if dist[u] != float("Inf") and dist[u] + w < dist[v]:
+                dist[v] = dist[u] + w
+
+    for u, v, w in graph:
+        if dist[u] != float("Inf") and dist[u] + w < dist[v]:
+            print("Graph contains negative weight cycle")
+            return
+
+    printArr(dist, V)
+
+if _name_ == '_main_':
+    V = 5
+    graph = [
+        (0, 1, -1), (0, 2, 4), (1, 2, 3), (1, 3, 2),
+        (1, 4, 2), (3, 2, 5), (3, 1, 1), (4, 3, -3)
+    ]
+
+    BellmanFord(graph, V, 0
+
+
+DJI
+
+import heapq
+
+def shortestPath(n, src, edges):
+    adj={}
+    for i in range(n):
+        adj[i] = []
+   
+    for s, d, w in edges:
+        adj[s].append([d,w])
+        adj[d].append([s,w])
+   
+    shortest = {}
+    paths = {i: [] for i in range(n)}
+    minHeap = [[0,src, [src]]]
+    while minHeap:
+        w1, n1, path = heapq.heappop(minHeap)
+        if n1 in shortest:
+            continue
+        shortest[n1] = w1
+        paths[n1] = path
+
+        for n2, w2 in adj[n1]:
+            if n2 not in shortest:
+                heapq.heappush(minHeap, [w1+w2, n2, path + [n2]])
+       
+    for i in range(n):
+        if i not in shortest:
+            shortest[i] = -1
+
+    return shortest,paths
+
+n = 8
+edges = [[0,3,3],[0,4,3],[1,3,1],[1,5,8],[1,2,3],[2,4,4],[3,5,6],[3,7,6]]
+src=0
+short,path = shortestPath(n,src,edges)
+print(short)
+print(path)
